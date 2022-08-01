@@ -1,4 +1,5 @@
-pragma solidity 0.6.12;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.7;
 
 interface IBEP20 {
     /**
@@ -105,11 +106,11 @@ contract PancakeVoterProxy {
     }
 
     function name() external pure returns (string memory) {
-        return 'SYRUPVOTE';
+        return "SYRUPVOTE";
     }
 
     function symbol() external pure returns (string memory) {
-        return 'SYRUP';
+        return "SYRUP";
     }
 
     function totalSupply() external view returns (uint256) {
@@ -120,5 +121,5 @@ contract PancakeVoterProxy {
         return IBEP20(votes).balanceOf(_voter);
     }
 
-    constructor() public {}
+    constructor(){}
 }
