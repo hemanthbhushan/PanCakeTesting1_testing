@@ -9,6 +9,7 @@
 // Ctrl+f for XXX to see all the modifications.
 
 // XXX: pragma solidity ^0.5.16;
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.7;
 
 // XXX: import "./SafeMath.sol";

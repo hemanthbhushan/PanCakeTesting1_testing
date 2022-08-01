@@ -1,5 +1,7 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.7;
 
+import "hardhat/console.sol";
 import "@pancakeswap/pancake-swap-lib/contracts/math/SafeMath.sol";
 import "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/IBEP20.sol";
 import "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/SafeBEP20.sol";
