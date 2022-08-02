@@ -238,6 +238,7 @@ contract MasterChef is Ownable {
         updatePool(_pid);
         if (user.amount > 0) {
             uint256 pending = user.amount.mul(pool.accCakePerShare).div(1e12).sub(user.rewardDebt);
+            console.log(pending,"pending of the user cake");
             if(pending > 0) {
                 safeCakeTransfer(msg.sender, pending);
             }
@@ -245,8 +246,10 @@ contract MasterChef is Ownable {
         if (_amount > 0) {
             pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
             user.amount = user.amount.add(_amount);
+            console.log("user amount in the initial deposit",user.amount);
         }
         user.rewardDebt = user.amount.mul(pool.accCakePerShare).div(1e12);
+        console.log("user reward debt",user.rewardDebt);
         emit Deposit(msg.sender, _pid, _amount);
     }
 
