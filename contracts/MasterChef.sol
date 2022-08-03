@@ -128,13 +128,17 @@ contract MasterChef is Ownable {
             massUpdatePools();
         }
         uint256 lastRewardBlock = block.number > startBlock ? block.number : startBlock;
+        
         totalAllocPoint = totalAllocPoint.add(_allocPoint);
+        console.log("total allocpoint", totalAllocPoint);
+       
         poolInfo.push(PoolInfo({
             lpToken: _lpToken,
             allocPoint: _allocPoint,
             lastRewardBlock: lastRewardBlock,
             accCakePerShare: 0
         }));
+       
         updateStakingPool();
     }
 
@@ -147,19 +151,25 @@ contract MasterChef is Ownable {
         poolInfo[_pid].allocPoint = _allocPoint;
         if (prevAllocPoint != _allocPoint) {
             totalAllocPoint = totalAllocPoint.sub(prevAllocPoint).add(_allocPoint);
+           
             updateStakingPool();
         }
     }
 
     function updateStakingPool() internal {
         uint256 length = poolInfo.length;
+        // console.log("length of the pool in the UpdateStaking Pool",length);
         uint256 points = 0;
         for (uint256 pid = 1; pid < length; ++pid) {
             points = points.add(poolInfo[pid].allocPoint);
         }
+        // console.log("points in the update staking pool",points);
         if (points != 0) {
             points = points.div(3);
+            
+            // console.log("points in the update staking pool div /3",points);
             totalAllocPoint = totalAllocPoint.sub(poolInfo[0].allocPoint).add(points);
+            
             poolInfo[0].allocPoint = points;
         }
     }
@@ -191,6 +201,7 @@ contract MasterChef is Ownable {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
         uint256 accCakePerShare = pool.accCakePerShare;
+        
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
@@ -213,18 +224,26 @@ contract MasterChef is Ownable {
     function updatePool(uint256 _pid) public {
         PoolInfo storage pool = poolInfo[_pid];
         if (block.number <= pool.lastRewardBlock) {
+        
             return;
         }
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+        console.log("amount LP supply in the  masterchef contract======",lpSupply);
+      
         if (lpSupply == 0) {
             pool.lastRewardBlock = block.number;
             return;
         }
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
         uint256 cakeReward = multiplier.mul(cakePerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+        
         cake.mint(devaddr, cakeReward.div(10));
         cake.mint(address(syrup), cakeReward);
         pool.accCakePerShare = pool.accCakePerShare.add(cakeReward.mul(1e12).div(lpSupply));
+
+        console.log("total supply update pool",lpSupply);
+        console.log("pool.accCakePerShare",pool.accCakePerShare);
+       
         pool.lastRewardBlock = block.number;
     }
 
@@ -238,18 +257,22 @@ contract MasterChef is Ownable {
         updatePool(_pid);
         if (user.amount > 0) {
             uint256 pending = user.amount.mul(pool.accCakePerShare).div(1e12).sub(user.rewardDebt);
-            console.log(pending,"pending of the user cake");
+            console.log("pending amount in deposit ",pending);
+           
             if(pending > 0) {
                 safeCakeTransfer(msg.sender, pending);
             }
         }
         if (_amount > 0) {
             pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
+             
             user.amount = user.amount.add(_amount);
-            console.log("user amount in the initial deposit",user.amount);
+            console.log("user amount in the deposit",user.amount);
+            
+          
         }
         user.rewardDebt = user.amount.mul(pool.accCakePerShare).div(1e12);
-        console.log("user reward debt",user.rewardDebt);
+       
         emit Deposit(msg.sender, _pid, _amount);
     }
 
@@ -263,12 +286,15 @@ contract MasterChef is Ownable {
 
         updatePool(_pid);
         uint256 pending = user.amount.mul(pool.accCakePerShare).div(1e12).sub(user.rewardDebt);
+        // console.log("pending reward",pending);
         if(pending > 0) {
             safeCakeTransfer(msg.sender, pending);
+            console.log("inside the if1 function");
         }
         if(_amount > 0) {
             user.amount = user.amount.sub(_amount);
             pool.lpToken.safeTransfer(address(msg.sender), _amount);
+            console.log("inside the if2 function");
         }
         user.rewardDebt = user.amount.mul(pool.accCakePerShare).div(1e12);
         emit Withdraw(msg.sender, _pid, _amount);
@@ -302,14 +328,17 @@ contract MasterChef is Ownable {
         require(user.amount >= _amount, "withdraw: not good");
         updatePool(0);
         uint256 pending = user.amount.mul(pool.accCakePerShare).div(1e12).sub(user.rewardDebt);
+        console.log("pending reward in the leave staking ==",pending);
         if(pending > 0) {
             safeCakeTransfer(msg.sender, pending);
         }
         if(_amount > 0) {
             user.amount = user.amount.sub(_amount);
+            console.log("user amount in the leave staking",user.amount);
             pool.lpToken.safeTransfer(address(msg.sender), _amount);
         }
         user.rewardDebt = user.amount.mul(pool.accCakePerShare).div(1e12);
+        console.log("user reward drbt",user.rewardDebt);
 
         syrup.burn(msg.sender, _amount);
         emit Withdraw(msg.sender, 0, _amount);
