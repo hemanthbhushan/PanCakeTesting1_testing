@@ -41,7 +41,7 @@ describe("Testing", () => {
         
     });
     describe("testing masterChef contract",()=>{
-      it("checking the pool length ",async ()=>{
+      it("checking the pool length,Deposit , withdraw ",async ()=>{
          await chef.add(1000,lp1.address,true);
          await chef.add(1000,lp2.address,true);
          await chef.add(1000,lp3.address,true);
@@ -124,7 +124,7 @@ describe("Testing", () => {
 
 
       })
-      it("checking the enter staking function",async ()=>{
+      it("checking the enter staking and unstaking function",async ()=>{
           
         await chef.add(1000,lp1.address,true);
         await chef.add(1000,lp2.address,true);
@@ -172,6 +172,14 @@ it("emergency withdraw",async ()=>{
   expect(cakeBalance).to.equal(0);
 
 
+})
+it("testing the rejections of the functions",async()=>{
+ await lp1.connect(signer1).approve(chef.address,100);
+
+  expect(chef.connect(signer1).add(1000,lp1.address,true)).to.be.revertedWith("Ownable: caller is not the owner");
+  expect(chef.deposit(0,100)).to.be.revertedWith("deposit CAKE by staking");
+  expect(chef.withdraw(0,100)).to.be.revertedWith("deposit CAKE by staking");
+  //transfer the ownership in the cake and syrup to the masterchef or else it gives "Ownable: new owner is the zero address"
 })
 
     })
